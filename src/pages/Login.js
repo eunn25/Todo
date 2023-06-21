@@ -7,7 +7,7 @@ class Login extends React.Component {
     return (
       <div className="Submit">
         <form className="Submit-form">
-          <label>아이디(이메일)</label>
+          <label>아이디!(이메일)</label>
           <input type="email" />
           <label>비밀번호</label>
           <input type="password" />
