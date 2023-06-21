@@ -6,7 +6,7 @@ class Signup extends React.Component {
     return (
       <div className="Submit">
         <form className="Submit-form">
-          <label>닉네임1</label>
+          <label>닉네임</label>
           <input type="text" />
           <label>아이디(이메일)</label>
           <input type="email" />
