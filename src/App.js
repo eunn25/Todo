@@ -1,21 +1,12 @@
-/* eslint-disable */
+import Register from "./Register";
+import Login from "./Login";
 
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Login from "./pages/Login";
-import Signup from "./pages/signup";
-
-class App extends React.Component {
-  render() {
-    return (
-      <Router>
-        <Routes>
-          <Route path="/" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
-      </Router>
-    );
-  }
+function App() {
+  return (
+    <main className="App">
+      <Register />
+    </main>
+  );
 }
 
 export default App;
