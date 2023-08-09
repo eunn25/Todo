@@ -7,56 +7,76 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "./api/axios";
 
-const USER_REGEX = /^[A-z][A-z0-9-_]{3,23}$/;
-const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
+// 사용자명 유효성 검사를 위한 정규표현식
+const USER_REGEX = /^[A-Za-z][A-Za-z0-9-_]{3,23}$/; // 영문 시작, 영문/숫자/기호(-_) 사용가능, 4-24글자
+// 비밀번호 유효성 검사를 위한 정규표현식
+const PWD_REGEX = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/; // 영문/숫자/기호(!@#$%) 모두 필수사용, 8-24글자
+
 const REGISTER_URL = "/register";
 
 const Register = () => {
-  const userRef = useRef();
-  const errRef = useRef();
+  // useRef를 사용하여 각 요소에 포커스
+  const userRef = useRef(); // 사용자명 입력 포커스
+  const errRef = useRef(); // 오류 포커스
 
+  // (useState 사용: [값 저장 변수, 값 갱신(setter) 함수] = (초기값))
+
+  // 사용자명과 관련된 state
   const [user, setUser] = useState("");
   const [validName, setValidName] = useState(false);
   const [userFocus, setUserFocus] = useState(false);
 
+  // 비밀번호와 관련된 state
   const [pwd, setPwd] = useState("");
   const [validPwd, setValidPwd] = useState(false);
   const [pwdFocus, setPwdFocus] = useState(false);
 
+  // 비밀번호 확인과 관련된 state
   const [matchPwd, setMatchPwd] = useState("");
   const [validMatch, setValidMatch] = useState(false);
   const [matchFocus, setMatchFocus] = useState(false);
 
+  // 오류 메시지와 성공 여부를 나타내는 state
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
 
+  // 페이지 로딩 시 사용자명 입력에 포커스 설정하는 useEffect
   useEffect(() => {
     userRef.current.focus();
   }, []);
 
+  // 사용자명 유효성 검사를 수행하는 useEffect
   useEffect(() => {
     setValidName(USER_REGEX.test(user));
-  }, [user]);
+  }, [user]); // 사용자명 변경 시마다 검사
 
+  // 비밀번호와 비밀번호 확인의 유효성 검사를 수행하는 useEffect
   useEffect(() => {
     setValidPwd(PWD_REGEX.test(pwd));
     setValidMatch(pwd === matchPwd);
-  }, [pwd, matchPwd]);
+  }, [pwd, matchPwd]); // 비밀번호 또는 확인 변경 시마다 검사
 
+  // 오류 메시지를 초기화하는 useEffect
   useEffect(() => {
     setErrMsg("");
-  }, [user, pwd, matchPwd]);
+  }, [user, pwd, matchPwd]); // 입력 값 변경 시마다 초기화
 
+  // 서버로 등록 요청을 보내고 응답을 처리하는 함수
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    // if button enabled with JS hack
+    e.preventDefault(); // 폼의 기본 동작 방지
+
+    // 사용자명과 비밀번호 유효성 검사 결과
     const v1 = USER_REGEX.test(user);
     const v2 = PWD_REGEX.test(pwd);
+
+    // 유효성 검사 결과를 기반으로 오류 메시지 설정
     if (!v1 || !v2) {
+      // 사용자명 또는 비밀번호가 유효하지 않을 경우 오류 메시지 설정
       setErrMsg("Invalid Entry");
       return;
     }
     try {
+      // 서버에 등록 요청을 보내고 응답 처리
       const response = await axios.post(
         REGISTER_URL,
         JSON.stringify({ user, pwd }),
@@ -65,30 +85,37 @@ const Register = () => {
           withCredentials: true,
         }
       );
-      console.log(response?.data);
-      console.log(response?.accessToken);
-      console.log(JSON.stringify(response));
-      setSuccess(true);
-      //clear state and controlled inputs
-      //need value attrib on inputs for this
+
+      // 등록 요청에 대한 서버 응답 로그 출력
+      console.log(response?.data); // 응답 데이터 출력
+      console.log(response?.accessToken); // 액세스 토큰 출력
+      console.log(JSON.stringify(response)); // 응답 객체 JSON 문자열로 출력
+
+      setSuccess(true); // 등록 성공 상태로 변경
+
+      // 상태 초기화 및 입력 필드 제어
       setUser("");
       setPwd("");
       setMatchPwd("");
     } catch (err) {
       if (!err?.response) {
+        // 서버 응답이 없을 경우 오류 메시지 설정
         setErrMsg("No Server Response");
       } else if (err.response?.status === 409) {
+        // 사용자명이 이미 사용 중인 경우 오류 메시지 설정
         setErrMsg("Username Taken");
       } else {
+        // 등록 실패 시 오류 메시지 설정
         setErrMsg("Registration Failed");
       }
-      errRef.current.focus();
+      errRef.current.focus(); // 오류 메시지로 포커스 이동
     }
   };
 
   return (
     <>
       {success ? (
+        // 등록 성공 시 화면 표시
         <section>
           <h1>Success!</h1>
           <p>
@@ -96,7 +123,9 @@ const Register = () => {
           </p>
         </section>
       ) : (
+        // 등록 폼 화면 표시
         <section>
+          {/* 오류 메시지 표시 */}
           <p
             ref={errRef}
             className={errMsg ? "errmsg" : "offscreen"}
@@ -106,8 +135,10 @@ const Register = () => {
           </p>
           <h1>Register</h1>
           <form onSubmit={handleSubmit}>
+            {/* htmlFor에 input의 이름을 적어서 input과 연결 */}
             <label htmlFor="username">
               Username:
+              {/* 유효성 검사 아이콘 표시 */}
               <FontAwesomeIcon
                 icon={faCheck}
                 className={validName ? "valid" : "hide"}
@@ -121,21 +152,23 @@ const Register = () => {
               type="text"
               id="username"
               ref={userRef}
-              autoComplete="off"
-              onChange={(e) => setUser(e.target.value)}
+              autoComplete="off" //이전 입력값 해제
+              onChange={(e) => setUser(e.target.value)} // 입력값 변경 시마다 'user' state 갱신
               value={user}
-              required
+              required //빈 필드로 폼 제출하기 제한(필수 정보 누락 방지)
               aria-invalid={validName ? "false" : "true"}
               aria-describedby="uidnote"
               onFocus={() => setUserFocus(true)}
               onBlur={() => setUserFocus(false)}
             />
+            {/* 사용자명 입력 안내 메시지 */}
             <p
               id="uidnote"
               className={
                 userFocus && user && !validName ? "instructions" : "offscreen"
               }
             >
+              {/* 사용자명 입력 안내 아이콘 */}
               <FontAwesomeIcon icon={faInfoCircle} />
               4 to 24 characters.
               <br />
@@ -158,7 +191,7 @@ const Register = () => {
             <input
               type="password"
               id="password"
-              onChange={(e) => setPwd(e.target.value)}
+              onChange={(e) => setPwd(e.target.value)} // 입력값 변경 시마다 'pwd' state 갱신
               value={pwd}
               required
               aria-invalid={validPwd ? "false" : "true"}
@@ -166,15 +199,16 @@ const Register = () => {
               onFocus={() => setPwdFocus(true)}
               onBlur={() => setPwdFocus(false)}
             />
+            {/* 비밀번호 입력 안내 메시지 */}
             <p
               id="pwdnote"
               className={pwdFocus && !validPwd ? "instructions" : "offscreen"}
             >
+              {/* 비밀번호 입력 안내 아이콘 */}
               <FontAwesomeIcon icon={faInfoCircle} />
               8 to 24 characters.
               <br />
-              Must include uppercase and lowercase letters, a number and a
-              special character.
+              Must include letters, numbers, and special characters.
               <br />
               Allowed special characters:{" "}
               <span aria-label="exclamation mark">!</span>{" "}
@@ -198,7 +232,7 @@ const Register = () => {
             <input
               type="password"
               id="confirm_pwd"
-              onChange={(e) => setMatchPwd(e.target.value)}
+              onChange={(e) => setMatchPwd(e.target.value)} // 입력값 변경 시마다 'matchPwd' state 갱신
               value={matchPwd}
               required
               aria-invalid={validMatch ? "false" : "true"}
@@ -206,16 +240,19 @@ const Register = () => {
               onFocus={() => setMatchFocus(true)}
               onBlur={() => setMatchFocus(false)}
             />
+            {/* 비밀번호 확인 입력 안내 메시지 */}
             <p
               id="confirmnote"
               className={
                 matchFocus && !validMatch ? "instructions" : "offscreen"
               }
             >
+              {/* 비밀번호 확인 입력 안내 아이콘 */}
               <FontAwesomeIcon icon={faInfoCircle} />
               Must match the first password input field.
             </p>
 
+            {/* 폼 제출 버튼 */}
             <button
               disabled={!validName || !validPwd || !validMatch ? true : false}
             >
