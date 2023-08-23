@@ -11,6 +11,9 @@ import axios from "./api/axios";
 const USER_REGEX = /^[A-Za-z][A-Za-z0-9-_]{3,23}$/; // 영문 시작, 영문/숫자/기호(-_) 사용가능, 4-24글자
 // 비밀번호 유효성 검사를 위한 정규표현식
 const PWD_REGEX = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/; // 영문/숫자/기호(!@#$%) 모두 필수사용, 8-24글자
+// 이메일 유효성 검사를 위한 정규표현식
+const EMAIL_REGEX =
+  /^[0-9A-Za-z]([-_.]?[0-9A-Za-z])*@[0-9A-Za-z]([-_.]?[A-Za-z0-9])*\.[A-Za-z]{2,3}$/;
 
 const REGISTER_URL = "/register";
 
@@ -36,6 +39,11 @@ const Register = () => {
   const [validMatch, setValidMatch] = useState(false);
   const [matchFocus, setMatchFocus] = useState(false);
 
+  // 이메일과 관련된 state
+  const [email, setEmail] = useState("");
+  const [validEmail, setValidEmail] = useState(false);
+  const [emailFocus, setEmailFocus] = useState(false);
+
   // 오류 메시지와 성공 여부를 나타내는 state
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
@@ -56,6 +64,11 @@ const Register = () => {
     setValidMatch(pwd === matchPwd);
   }, [pwd, matchPwd]); // 비밀번호 또는 확인 변경 시마다 검사
 
+  // 이메일 유효성 검사를 수행하는 useEffect
+  useEffect(() => {
+    setValidEmail(EMAIL_REGEX.test(email));
+  }, [email]); // 이메일 변경 시마다 검사
+
   // 오류 메시지를 초기화하는 useEffect
   useEffect(() => {
     setErrMsg("");
@@ -65,13 +78,14 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault(); // 폼의 기본 동작 방지
 
-    // 사용자명과 비밀번호 유효성 검사 결과
+    // 사용자명, 비밀번호, 이메일 유효성 검사 결과
     const v1 = USER_REGEX.test(user);
     const v2 = PWD_REGEX.test(pwd);
+    const v3 = EMAIL_REGEX.test(email);
 
     // 유효성 검사 결과를 기반으로 오류 메시지 설정
-    if (!v1 || !v2) {
-      // 사용자명 또는 비밀번호가 유효하지 않을 경우 오류 메시지 설정
+    if (!v1 || !v2 || !v3) {
+      // 사용자명 또는 비밀번호 또는 이메일이 유효하지 않을 경우 오류 메시지 설정
       setErrMsg("Invalid Entry");
       return;
     }
@@ -79,7 +93,7 @@ const Register = () => {
       // 서버에 등록 요청을 보내고 응답 처리
       const response = await axios.post(
         REGISTER_URL,
-        JSON.stringify({ user, pwd }),
+        JSON.stringify({ user, pwd, email }),
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
@@ -97,6 +111,7 @@ const Register = () => {
       setUser("");
       setPwd("");
       setMatchPwd("");
+      setEmail("");
     } catch (err) {
       if (!err?.response) {
         // 서버 응답이 없을 경우 오류 메시지 설정
@@ -252,9 +267,51 @@ const Register = () => {
               Must match the first password input field.
             </p>
 
+            <label htmlFor="email">
+              Email:
+              {/* 유효성 검사 아이콘 표시 */}
+              <FontAwesomeIcon
+                icon={faCheck}
+                className={validEmail ? "valid" : "hide"}
+              />
+              <FontAwesomeIcon
+                icon={faTimes}
+                className={validEmail || !email ? "hide" : "invalid"}
+              />
+            </label>
+            <input
+              type="email"
+              id="email"
+              autoComplete="off" //이전 입력값 해제
+              onChange={(e) => setEmail(e.target.value)} // 입력값 변경 시마다 'email' state 갱신
+              value={email}
+              required
+              aria-invalid={validEmail ? "false" : "true"}
+              aria-describedby="emailnote"
+              onFocus={() => setEmailFocus(true)}
+              onBlur={() => setEmailFocus(false)}
+            />
+            {/* 이메일 입력 안내 메시지 */}
+            <p
+              id="emailnote"
+              className={
+                emailFocus && email && !validEmail
+                  ? "instructions"
+                  : "offscreen"
+              }
+            >
+              {/* 이메일 입력 안내 아이콘 */}
+              <FontAwesomeIcon icon={faInfoCircle} />
+              Please type according to the email format.
+            </p>
+
             {/* 폼 제출 버튼 */}
             <button
-              disabled={!validName || !validPwd || !validMatch ? true : false}
+              disabled={
+                !validName || !validPwd || !validMatch || !validEmail
+                  ? true
+                  : false
+              }
             >
               Sign Up
             </button>
