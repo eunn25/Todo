@@ -90,7 +90,7 @@ const Register = () => {
       return;
     }
     try {
-      // 서버에 등록 요청을 보내고 응답 처리
+      // 서버에 등록 요청(axios.post)을 보내고 응답(response) 처리
       const response = await axios.post(
         REGISTER_URL,
         JSON.stringify({ user, pwd, email }),
@@ -114,13 +114,13 @@ const Register = () => {
       setEmail("");
     } catch (err) {
       if (!err?.response) {
-        // 서버 응답이 없을 경우 오류 메시지 설정
+        // 서버 응답이 없을 경우 처리
         setErrMsg("No Server Response");
       } else if (err.response?.status === 409) {
-        // 사용자명이 이미 사용 중인 경우 오류 메시지 설정
+        // 사용자명 중복인 경우 처리
         setErrMsg("Username Taken");
       } else {
-        // 등록 실패 시 오류 메시지 설정
+        // 기타 등록 실패 시 처리
         setErrMsg("Registration Failed");
       }
       errRef.current.focus(); // 오류 메시지로 포커스 이동
