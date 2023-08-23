@@ -7,22 +7,17 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "./api/axios";
 
-// 사용자명 유효성 검사를 위한 정규표현식
-const USER_REGEX = /^[A-Za-z][A-Za-z0-9-_]{3,23}$/; // 영문 시작, 영문/숫자/기호(-_) 사용가능, 4-24글자
-// 비밀번호 유효성 검사를 위한 정규표현식
-const PWD_REGEX = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/; // 영문/숫자/기호(!@#$%) 모두 필수사용, 8-24글자
-// 이메일 유효성 검사를 위한 정규표현식
+// 사용자명, 비밀번호, 이메일 유효성 검사를 위한 정규표현식
+const USER_REGEX = /^[A-Za-z][A-Za-z0-9-_]{3,23}$/;
+const PWD_REGEX = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 const EMAIL_REGEX =
   /^[0-9A-Za-z]([-_.]?[0-9A-Za-z])*@[0-9A-Za-z]([-_.]?[A-Za-z0-9])*\.[A-Za-z]{2,3}$/;
 
 const REGISTER_URL = "/register";
 
 const Register = () => {
-  // useRef를 사용하여 각 요소에 포커스
-  const userRef = useRef(); // 사용자명 입력 포커스
-  const errRef = useRef(); // 오류 포커스
-
-  // (useState 사용: [값 저장 변수, 값 갱신(setter) 함수] = (초기값))
+  const userRef = useRef(); // useRef를 사용하여 사용자명 입력 포커스
+  const errRef = useRef(); // useRef를 사용하여 오류 포커스
 
   // 사용자명과 관련된 state
   const [user, setUser] = useState("");
@@ -48,31 +43,31 @@ const Register = () => {
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // 페이지 로딩 시 사용자명 입력에 포커스 설정하는 useEffect
+  // 페이지 로드 시 사용자명 입력 필드에 포커스 설정하는 useEffect
   useEffect(() => {
     userRef.current.focus();
   }, []);
 
-  // 사용자명 유효성 검사를 수행하는 useEffect
+  // 사용자명 변경 시마다 사용자명 유효성 검사를 수행하는 useEffect
   useEffect(() => {
     setValidName(USER_REGEX.test(user));
-  }, [user]); // 사용자명 변경 시마다 검사
+  }, [user]);
 
-  // 비밀번호와 비밀번호 확인의 유효성 검사를 수행하는 useEffect
+  // 비밀번호 또는 확인 변경 시마다 비밀번호와 비밀번호 확인의 유효성 검사를 수행하는 useEffect
   useEffect(() => {
     setValidPwd(PWD_REGEX.test(pwd));
     setValidMatch(pwd === matchPwd);
-  }, [pwd, matchPwd]); // 비밀번호 또는 확인 변경 시마다 검사
+  }, [pwd, matchPwd]);
 
-  // 이메일 유효성 검사를 수행하는 useEffect
+  // 이메일 변경 시마다 이메일 유효성 검사를 수행하는 useEffect
   useEffect(() => {
     setValidEmail(EMAIL_REGEX.test(email));
-  }, [email]); // 이메일 변경 시마다 검사
+  }, [email]);
 
-  // 오류 메시지를 초기화하는 useEffect
+  // 입력 값 변경 시마다 오류 메시지를 초기화하는 useEffect
   useEffect(() => {
     setErrMsg("");
-  }, [user, pwd, matchPwd]); // 입력 값 변경 시마다 초기화
+  }, [user, pwd, matchPwd]);
 
   // 서버로 등록 요청을 보내고 응답을 처리하는 함수
   const handleSubmit = async (e) => {
