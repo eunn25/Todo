@@ -3,7 +3,7 @@ import AuthContext from "./context/AuthProvider";
 // 사용자 인증 관련 정보를 받아오기 위해 AuthContext를 import
 
 import axios from "./api/axios";
-const LOGIN_URL = "/login";
+const LOGIN_URL = "/login"; //엔드포인트 주소
 
 const Login = () => {
   const { setAuth } = useContext(AuthContext);
