@@ -7,22 +7,21 @@ const LOGIN_URL = "/api/users/login"; //엔드포인트 주소
 
 const Login = () => {
   const { setAuth } = useContext(AuthContext);
-  const userRef = useRef();
+  const emailRef = useRef();
   const errRef = useRef();
 
-  const [name, setName] = useState("");
-  const [pwd, setPwd] = useState("");
   const [email, setEmail] = useState("");
+  const [pwd, setPwd] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    userRef.current.focus(); // 페이지 로드 시 사용자명 입력 필드에 포커스 설정하는 useEffect
+    emailRef.current.focus(); // 페이지 로드 시 이메일 입력 필드에 포커스 설정하는 useEffect
   }, []);
 
   useEffect(() => {
-    setErrMsg(""); // 사용자명, 비밀번호, 이메일 변경 시 오류 메시지 초기화
-  }, [name, pwd, email]);
+    setErrMsg(""); // 이메일, 비밀번호 변경 시 오류 메시지 초기화
+  }, [email, pwd]);
 
   // 로그인 폼 제출 처리
   const handleSubmit = async (e) => {
@@ -32,7 +31,7 @@ const Login = () => {
       // 서버에 로그인 정보(axios.post)를 보내고 응답(response) 처리
       const response = await axios.post(
         LOGIN_URL,
-        JSON.stringify({ user: name, pwd, email }), // 입력된 사용자 정보를 JSON 형태로 변환하여 서버로 전송
+        JSON.stringify({ user: email, pwd }), // 입력된 사용자 정보를 JSON 형태로 변환하여 서버로 전송
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
@@ -41,12 +40,11 @@ const Login = () => {
       );
       console.log(JSON.stringify(response?.data)); // 서버 응답 데이터 출력
       const accessToken = response?.data?.accessToken; // 응답에서 인증 토큰 추출
-      setAuth({ user: name, pwd, email, accessToken }); // 사용자 정보와 토큰을 AuthContext에 저장
+      setAuth({ user: email, pwd, accessToken }); // 사용자 정보와 토큰을 AuthContext에 저장
 
       // 상태 초기화
-      setName("");
-      setPwd("");
       setEmail("");
+      setPwd("");
       setSuccess(true);
     } catch (err) {
       if (!err?.response) {
@@ -54,7 +52,7 @@ const Login = () => {
         setErrMsg("No Server Response");
       } else if (err.response?.status === 400) {
         // 입력이 누락될 경우 처리
-        setErrMsg("Missing Username or Password");
+        setErrMsg("Missing Email or Password");
       } else if (err.response?.status === 401) {
         // 로그인 권한이 없을 경우 처리
         setErrMsg("Unauthorized");
@@ -87,14 +85,14 @@ const Login = () => {
           </p>
           <h1>Sign In</h1>
           <form onSubmit={handleSubmit}>
-            <label htmlFor="username">Username:</label>
+            <label htmlFor="email">Email:</label>
             <input
-              type="text"
-              id="username"
-              ref={userRef}
+              type="email"
+              id="email"
+              ref={emailRef}
               autoComplete="off"
-              onChange={(e) => setName(e.target.value)}
-              value={name}
+              onChange={(e) => setEmail(e.target.value)}
+              value={email}
               required
             />
 
@@ -104,16 +102,6 @@ const Login = () => {
               id="password"
               onChange={(e) => setPwd(e.target.value)}
               value={pwd}
-              required
-            />
-
-            <label htmlFor="email">Email:</label>
-            <input
-              type="email"
-              id="email"
-              autoComplete="off"
-              onChange={(e) => setEmail(e.target.value)}
-              value={email}
               required
             />
             <button>Sign In</button>
