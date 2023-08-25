@@ -10,7 +10,7 @@ const Login = () => {
   const userRef = useRef();
   const errRef = useRef();
 
-  const [user, setUser] = useState("");
+  const [name, setName] = useState("");
   const [pwd, setPwd] = useState("");
   const [email, setEmail] = useState("");
   const [errMsg, setErrMsg] = useState("");
@@ -22,7 +22,7 @@ const Login = () => {
 
   useEffect(() => {
     setErrMsg(""); // 사용자명, 비밀번호, 이메일 변경 시 오류 메시지 초기화
-  }, [user, pwd, email]);
+  }, [name, pwd, email]);
 
   // 로그인 폼 제출 처리
   const handleSubmit = async (e) => {
@@ -32,7 +32,7 @@ const Login = () => {
       // 서버에 로그인 정보(axios.post)를 보내고 응답(response) 처리
       const response = await axios.post(
         LOGIN_URL,
-        JSON.stringify({ user, pwd, email }), // 입력된 사용자 정보를 JSON 형태로 변환하여 서버로 전송
+        JSON.stringify({ user: name, pwd, email }), // 입력된 사용자 정보를 JSON 형태로 변환하여 서버로 전송
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
@@ -41,10 +41,10 @@ const Login = () => {
       );
       console.log(JSON.stringify(response?.data)); // 서버 응답 데이터 출력
       const accessToken = response?.data?.accessToken; // 응답에서 인증 토큰 추출
-      setAuth({ user, pwd, email, accessToken }); // 사용자 정보와 토큰을 AuthContext에 저장
+      setAuth({ user: name, pwd, email, accessToken }); // 사용자 정보와 토큰을 AuthContext에 저장
 
       // 상태 초기화
-      setUser("");
+      setName("");
       setPwd("");
       setEmail("");
       setSuccess(true);
@@ -93,8 +93,8 @@ const Login = () => {
               id="username"
               ref={userRef}
               autoComplete="off"
-              onChange={(e) => setUser(e.target.value)}
-              value={user}
+              onChange={(e) => setName(e.target.value)}
+              value={name}
               required
             />
 

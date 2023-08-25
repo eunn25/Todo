@@ -20,9 +20,9 @@ const Register = () => {
   const errRef = useRef(); // useRef를 사용하여 오류 포커스
 
   // 사용자명과 관련된 state
-  const [user, setUser] = useState("");
+  const [name, setName] = useState("");
   const [validName, setValidName] = useState(false);
-  const [userFocus, setUserFocus] = useState(false);
+  const [nameFocus, setNameFocus] = useState(false);
 
   // 비밀번호와 관련된 state
   const [pwd, setPwd] = useState("");
@@ -50,8 +50,8 @@ const Register = () => {
 
   // 사용자명 변경 시마다 사용자명 유효성 검사를 수행하는 useEffect
   useEffect(() => {
-    setValidName(USER_REGEX.test(user));
-  }, [user]);
+    setValidName(USER_REGEX.test(name));
+  }, [name]);
 
   // 비밀번호 또는 확인 변경 시마다 비밀번호와 비밀번호 확인의 유효성 검사를 수행하는 useEffect
   useEffect(() => {
@@ -67,14 +67,14 @@ const Register = () => {
   // 입력 값 변경 시마다 오류 메시지를 초기화하는 useEffect
   useEffect(() => {
     setErrMsg("");
-  }, [user, pwd, matchPwd]);
+  }, [name, pwd, matchPwd]);
 
   // 서버로 등록 요청을 보내고 응답을 처리하는 함수
   const handleSubmit = async (e) => {
     e.preventDefault(); // 폼의 기본 동작 방지
 
     // 사용자명, 비밀번호, 이메일 유효성 검사 결과
-    const v1 = USER_REGEX.test(user);
+    const v1 = USER_REGEX.test(name);
     const v2 = PWD_REGEX.test(pwd);
     const v3 = EMAIL_REGEX.test(email);
 
@@ -88,7 +88,7 @@ const Register = () => {
       // 서버에 등록 요청(axios.post)을 보내고 응답(response) 처리
       const response = await axios.post(
         REGISTER_URL,
-        JSON.stringify({ user, pwd, email }),
+        JSON.stringify({ user: name, pwd, email }),
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
@@ -102,7 +102,7 @@ const Register = () => {
       setSuccess(true); // 등록 성공 상태로 변경
 
       // 상태 초기화 및 입력 필드 제어
-      setUser("");
+      setName("");
       setPwd("");
       setMatchPwd("");
       setEmail("");
@@ -154,7 +154,7 @@ const Register = () => {
               />
               <FontAwesomeIcon
                 icon={faTimes}
-                className={validName || !user ? "hide" : "invalid"}
+                className={validName || !name ? "hide" : "invalid"}
               />
             </label>
             <input
@@ -162,19 +162,19 @@ const Register = () => {
               id="username"
               ref={userRef}
               autoComplete="off" //이전 입력값 해제
-              onChange={(e) => setUser(e.target.value)} // 입력값 변경 시마다 'user' state 갱신
-              value={user}
+              onChange={(e) => setName(e.target.value)} // 입력값 변경 시마다 'user' state 갱신
+              value={name}
               required //빈 필드로 폼 제출하기 제한(필수 정보 누락 방지)
               aria-invalid={validName ? "false" : "true"}
               aria-describedby="uidnote"
-              onFocus={() => setUserFocus(true)}
-              onBlur={() => setUserFocus(false)}
+              onFocus={() => setNameFocus(true)}
+              onBlur={() => setNameFocus(false)}
             />
             {/* 사용자명 입력 안내 메시지 */}
             <p
               id="uidnote"
               className={
-                userFocus && user && !validName ? "instructions" : "offscreen"
+                nameFocus && name && !validName ? "instructions" : "offscreen"
               }
             >
               {/* 사용자명 입력 안내 아이콘 */}
