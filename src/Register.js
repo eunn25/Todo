@@ -97,7 +97,6 @@ const Register = () => {
 
       // 등록 요청에 대한 서버 응답 로그 출력
       console.log(response?.data); // 응답 데이터 출력
-      console.log(response?.accessToken); // 액세스 토큰 출력
       console.log(JSON.stringify(response)); // 응답 객체 JSON 문자열로 출력
 
       setSuccess(true); // 등록 성공 상태로 변경
