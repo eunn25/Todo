@@ -13,7 +13,7 @@ const PWD_REGEX = /^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
 const EMAIL_REGEX =
   /^[0-9A-Za-z]([-_.]?[0-9A-Za-z])*@[0-9A-Za-z]([-_.]?[A-Za-z0-9])*\.[A-Za-z]{2,3}$/;
 
-const REGISTER_URL = "/register"; //엔드포인트 주소
+const REGISTER_URL = "/api/users/register"; //엔드포인트 주소
 
 const Register = () => {
   const userRef = useRef(); // useRef를 사용하여 사용자명 입력 포커스
